@@ -1,25 +1,24 @@
-import { Controller, Delete, Get, Param, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { MusicType } from "src/commons/enums/music-type.enum";
-
+import { MusicService } from "./music.service";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
 @Controller('musics')
 export class MusicController {
+
+    constructor(private musicService: MusicService) {
+    }
 
     //localhost:3000/musics
     @Get()
     getAllMusics() {
-        return 'all musics';
-    }
-
-    //localhost:3000/musics/:id
-    @Get(':id')
-    private getMusicById(@Param('id') id: number) {
-        return `Music with id ${id}`;
+        return this.musicService.getAllMusics();
     }
 
     //localhost:3000/musics/limited
     @Get('limited')
     getLimitedMusics(@Query('limit') limit: number) {
-        return `musics limited with count ${limit}`;
+        return this.musicService.getLimitedMusics(limit);
     }
 
     //localhost:3000/musics/filtered
@@ -28,19 +27,50 @@ export class MusicController {
         @Query('limit') limit: number,
         @Query('type') type: MusicType,
         @Query('rate') rate: number) {
-        return { limit, type, rate };
+        return this.musicService.getFilteredMusics(limit, type, rate);
+    }
+
+    //localhost:3000/musics/:id
+    @Get(':id')
+    private getMusicById(@Param('id') id: number) {
+        return this.musicService.getMusicById(id);
     }
 
     //localhost:3000/musics/:id/update-music
     @Put(':id/update-music')
-    updateMusic(@Param('id') id: number) {
-        return `Music with id ${id} updated`;
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './uploads/musics',
+            filename: (req, file, cb) => {
+                const filename: string = file.originalname.split('.')[0];
+                const fileExtension: string = file.originalname.split('.')[1];
+                const newFilename: string = filename.split(" ").join('_') + '_' + Date.now() + '.' + fileExtension;
+
+                cb(null, newFilename);
+            }
+        }),
+        fileFilter: (req, file, cb) => {
+            if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+                return cb(null, false);
+            }
+            cb(null, true);
+        }
+    }))
+    updateMusic(
+        @Param('id') id: number,
+        @Body('name') name: string,
+        @Body('description') description: string,
+        @Body('artist') artist: string,
+        @Body('type') type: MusicType,
+        @UploadedFile() file: Express.Multer.File
+    ) {
+        return this.musicService.updateMusic(id, name, description, artist, type, file.path);
     }
 
     //localhost:3000/musics/:id/delete-music
     @Delete(':id/delete-music')
     deleteMusic(@Param('id') id: number) {
-        return `Music with id ${id} deleted`;
+        return this.musicService.deleteMusic(id);
     }
 
     //localhost:3000/musics/:musicId/add-to-playlist/:playlistId
