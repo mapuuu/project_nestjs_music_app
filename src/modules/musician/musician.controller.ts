@@ -1,42 +1,74 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { Gender } from "src/commons/enums/gender.enum";
 import { CreateAlbumDto } from "src/shared/dto/create-album.dto";
-
+import { MusicianService } from "./musician.service";
+import { ArtistType } from "src/commons/enums/artist-type.enum";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
 @Controller('musicians')
 export class MusicianController {
+
+    constructor(
+        private musicianService: MusicianService) {
+    }
 
     //localhost:3000/musicians
     @Get()
     getAllMusicians() {
-        return 'all musicians';
+        return this.musicianService.getAllMusician();
     }
 
     //localhost:3000/musicians/filtered
     @Get('filtered')
     getFilterdMusicians(
         @Query('limit') limit: number,
-        @Query('type') type: string,
+        @Query('type') type: ArtistType,
         @Query('nationality') nationality: string,
         @Query('gender') gender: Gender) {
-        return { limit, type, nationality, gender };
+        return this.musicianService.getFilterdMusician(limit, type, nationality, gender);
     }
 
     //localhost:3000/musicians/limited
     @Get('limited')
     getLimitedMusicians(@Query('limit') limit: number) {
-        return { limit };
+        return this.musicianService.getLimitedMusician(limit);
     }
 
     //localhost:3000/musicians
     @Post()
-    createNewMusician() {
-        return 'new musician';
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './uploads/musicians',
+            filename: (req, file, cb) => {
+                const filename: string = file.originalname.split('.')[0];
+                const fileExtension: string = file.originalname.split('.')[1];
+                const newFilename: string = filename.split(" ").join('_') + '_' + Date.now() + '.' + fileExtension;
+
+                cb(null, newFilename);
+            }
+        }),
+        fileFilter: (req, file, cb) => {
+            if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+                return cb(null, false);
+            }
+            cb(null, true);
+        }
+    }))
+    createNewMusician(
+        @Body('name') name: string,
+        @Body('info') info: string,
+        @Body('gender') gender: Gender,
+        @Body('nationnality') nationnality: string,
+        @Body('type') type: ArtistType,
+        @UploadedFile() file: Express.Multer.File
+    ) {
+        return this.musicianService.createNewMusician(name, info, gender, nationnality, type, file.path);
     }
 
     //localhost:3000/musicians/:id
     @Get(':id')
     getMusicianById(@Param('id') id: number) {
-        return `musician ${id}`;
+        return this.musicianService.getMusicianById(id);
     }
 
     //localhost:3000/musicians/:id/new-album
@@ -50,16 +82,38 @@ export class MusicianController {
 
     //localhost:3000/musicians/:id/update-musician
     @Put(':id/update-musician')
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './uploads/musicians',
+            filename: (req, file, cb) => {
+                const filename: string = file.originalname.split('.')[0];
+                const fileExtension: string = file.originalname.split('.')[1];
+                const newFilename: string = filename.split(" ").join('_') + '_' + Date.now() + '.' + fileExtension;
+
+                cb(null, newFilename);
+            }
+        }),
+        fileFilter: (req, file, cb) => {
+            if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+                return cb(null, false);
+            }
+            cb(null, true);
+        }
+    }))
     updateMusician(
         @Param('id') id: number,
-        @Body('createAlbumDto') createAlbumDto: CreateAlbumDto) {
-        const { name } = createAlbumDto;
-        return { id, name };
+        @Body('name') name: string,
+        @Body('info') info: string,
+        @Body('gender') gender: Gender,
+        @Body('nationnality') nationnality: string,
+        @Body('type') type: ArtistType,
+        @UploadedFile() file: Express.Multer.File) {
+        return this.musicianService.updateMusician(id, name, info, gender, nationnality, type, file.path);
     }
 
     //localhost:3000/musicians/:id/delete-musician
     @Delete(':id/delete-musician')
     deleteMusician(@Param('id') id: number) {
-        return 'deleting entity with id: ' + id;
+        return this.musicianService.deleteMusician(id);
     }
 }

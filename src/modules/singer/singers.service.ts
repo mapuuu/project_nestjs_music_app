@@ -94,6 +94,7 @@ export class SingersService {
 
     async deleteSinger(singerId: number): Promise<DeleteResult> {
         const result = await this.singerRepository.delete(singerId)
+        console.log('-----------------', result);
         if (result.affected === 0) {
             throw new NotFoundException(`Singer with id ${singerId} does not found`);
         }

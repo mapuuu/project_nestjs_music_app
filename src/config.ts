@@ -15,7 +15,7 @@ export const config = {
     type: 'postgres',
     host: 'localhost',
     port: 5432,
-    database: 'nestjs_music_app',
+    database: 'project_nestjs_music_app',
     username: 'postgres',
     password: 'root',
     entities: [

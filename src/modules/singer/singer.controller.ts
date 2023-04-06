@@ -83,11 +83,33 @@ export class SingerController {
 
     //localhost:3000/singers/:id/update-singer
     @Put(':id/update-singer')
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './uploads/singers',
+            filename: (req, file, cb) => {
+                const filename: string = file.originalname.split('.')[0];
+                const fileExtension: string = file.originalname.split('.')[1];
+                const newFilename: string = filename.split(" ").join('_') + '_' + Date.now() + '.' + fileExtension;
+
+                cb(null, newFilename);
+            }
+        }),
+        fileFilter: (req, file, cb) => {
+            if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+                return cb(null, false);
+            }
+            cb(null, true);
+        }
+    }))
     updateSinger(
         @Param('id') id: number,
-        @Body('createAlbumDto') createAlbumDto: CreateAlbumDto) {
-        const { name } = createAlbumDto;
-        return { id, name };
+        @Body('name') name: string,
+        @Body('info') info: string,
+        @Body('gender') gender: Gender,
+        @Body('nationnality') nationnality: string,
+        @Body('type') type: ArtistType,
+        @UploadedFile() file: Express.Multer.File) {
+        return this.singersService.updateSinger(id, name, info, gender, nationnality, type, file.path);
     }
 
     //localhost:3000/singers/:id/delete-singer
