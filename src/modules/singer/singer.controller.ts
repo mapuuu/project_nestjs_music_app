@@ -39,7 +39,7 @@ export class SingerController {
     @Post()
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
-            destination: './uploads/singers',
+            destination: './uploads/singer-album/singers',
             filename: (req, file, cb) => {
                 const filename: string = file.originalname.split('.')[0];
                 const fileExtension: string = file.originalname.split('.')[1];
@@ -85,7 +85,7 @@ export class SingerController {
     @Put(':id/update-singer')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
-            destination: './uploads/singers',
+            destination: './uploads/singer-album/singers',
             filename: (req, file, cb) => {
                 const filename: string = file.originalname.split('.')[0];
                 const fileExtension: string = file.originalname.split('.')[1];

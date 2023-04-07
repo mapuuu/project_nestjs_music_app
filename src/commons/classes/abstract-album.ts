@@ -1,6 +1,6 @@
 import { BaseEntity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-export abstract class AbstractAlbum extends BaseEntity{
+export abstract class AbstractAlbum extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -9,6 +9,5 @@ export abstract class AbstractAlbum extends BaseEntity{
 
   @Column()
   image: string;
-
 
 }

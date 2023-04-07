@@ -38,7 +38,7 @@ export class MusicianController {
     @Post()
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
-            destination: './uploads/musicians',
+            destination: './uploads/musician-album/musicians',
             filename: (req, file, cb) => {
                 const filename: string = file.originalname.split('.')[0];
                 const fileExtension: string = file.originalname.split('.')[1];
@@ -62,6 +62,7 @@ export class MusicianController {
         @Body('type') type: ArtistType,
         @UploadedFile() file: Express.Multer.File
     ) {
+        console.log('-------file', file);
         return this.musicianService.createNewMusician(name, info, gender, nationnality, type, file.path);
     }
 
@@ -83,7 +84,7 @@ export class MusicianController {
     @Put(':id/update-musician')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
-            destination: './uploads/musicians',
+            destination: './uploads/musician-album/musicians',
             filename: (req, file, cb) => {
                 const filename: string = file.originalname.split('.')[0];
                 const fileExtension: string = file.originalname.split('.')[1];

@@ -1,34 +1,35 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { MusicicRepository } from "./music.repository";
+import { MusicRepository } from "./music.repository";
 import { Music } from "./music.entity";
 import { MusicType } from "src/commons/enums/music-type.enum";
 import { DeleteResult } from "typeorm";
+import * as fs from 'fs';
 
 @Injectable()
 export class MusicService {
 
     constructor(
-        @InjectRepository(MusicicRepository) private musicicRepository: MusicicRepository) {
+        @InjectRepository(MusicRepository) private musicRepository: MusicRepository) {
     }
 
     async getAllMusics(): Promise<Music[]> {
-        return await this.musicicRepository.find();
+        return await this.musicRepository.find();
     }
 
     async getLimitedMusics(limit: number): Promise<Music[]> {
-        return await this.musicicRepository.getLimitedMusics(limit);
+        return await this.musicRepository.getLimitedMusics(limit);
     }
 
     async getFilteredMusics(
         limit: number,
         type: MusicType,
         rate: number): Promise<Music[]> {
-        return await this.musicicRepository.getFilteredMusics(limit, type, rate);
+        return await this.musicRepository.getFilteredMusics(limit, type, rate);
     }
 
     async getMusicById(id: number): Promise<Music> {
-        const music = await this.musicicRepository.findOne({
+        const music = await this.musicRepository.findOne({
             where: { id },
         });
         if (!music) {
@@ -43,7 +44,7 @@ export class MusicService {
         description: string,
         artist: string,
         type: MusicType,
-        image: any): Promise<Music> {
+        source: any): Promise<Music> {
         const music = await this.getMusicById(id);
         if (name) {
             music.name = name;
@@ -57,15 +58,30 @@ export class MusicService {
         if (type) {
             music.type = type;
         }
-        if (image) {
-            music.source = image;
+        if (source) {
+            fs.unlink(music.source, (err) => {
+                if (err) {
+                    console.log('--------------------------------', err);
+                }
+            });
+            music.source = source;
         }
         const updatedMusic = await music.save();
         return updatedMusic;
     }
 
     async deleteMusic(id: number): Promise<DeleteResult> {
-        const result = await this.musicicRepository.delete(id);
+        const musicic = await this.getMusicById(id);
+        console.log('----------music.source:', musicic.source);
+        if (musicic.source) {
+            fs.unlink(musicic.source, (err) => {
+                if (err) {
+                    console.log('--------------------------------', err);
+                }
+            });
+        }
+
+        const result = await this.musicRepository.delete(id);
         if (result.affected === 0) {
             throw new NotFoundException(`Music with id ${id} does not found`);
         }

@@ -20,6 +20,9 @@ import { MulterModule } from '@nestjs/platform-express';
 @Module({
   imports: [
     TypeOrmModule.forRoot(config.db as TypeOrmModuleOptions),
+    MulterModule.register({
+      dest: '../uploads'
+    }),
     // ConfigModule.forRoot({
     //   validationSchema: Joi.object({
     //     POSTGRES_HOST: Joi.string().required(),

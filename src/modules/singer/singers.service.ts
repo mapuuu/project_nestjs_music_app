@@ -7,6 +7,7 @@ import { DeleteResult } from 'typeorm';
 import { SingerAlbums } from '../singer-album/singer-album.entity';
 import { Singer } from './singer.entity';
 import { SingerRepository } from './singer.repository';
+import * as fs from 'fs';
 
 @Injectable()
 export class SingersService {
@@ -67,7 +68,7 @@ export class SingersService {
         gender: Gender,
         nationality: string,
         type: ArtistType,
-        image: any,
+        image: string,
     ): Promise<Singer> {
         const singer = await this.getSingerById(id);
         if (name) {
@@ -86,13 +87,27 @@ export class SingersService {
             singer.type = type;
         }
         if (image) {
-            singer.image = image;
+            fs.unlink(singer.image, (err) => {
+                if (err) {
+                    console.log('--------------------------------', err);
+                }
+            });
+            singer.image = image
         }
         const savedSinger = await singer.save();
         return singer;
     }
 
     async deleteSinger(singerId: number): Promise<DeleteResult> {
+        const singer = await this.getSingerById(singerId);
+        if (singer.image) {
+            fs.unlink(singer.image, (err) => {
+                if (err) {
+                    console.log('--------------------------------', err);
+                }
+            });
+        }
+
         const result = await this.singerRepository.delete(singerId)
         console.log('-----------------', result);
         if (result.affected === 0) {

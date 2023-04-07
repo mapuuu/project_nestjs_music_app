@@ -27,7 +27,7 @@ export class MusicianAlbummController {
     @Post(':id/new-music')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
-            destination: './uploads/musics',
+            destination: './uploads/musician-album/musics',
             filename: (req, file, cb) => {
                 const filename: string = file.originalname.split('.')[0];
                 const fileExtension: string = file.originalname.split('.')[1];

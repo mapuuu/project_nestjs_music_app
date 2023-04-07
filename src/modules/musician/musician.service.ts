@@ -7,6 +7,7 @@ import { Gender } from "src/commons/enums/gender.enum";
 import { DeleteResult } from "typeorm";
 import { MusicianAlbums } from "../musician-album/musician-album.entity";
 import { CreateAlbumDto } from "src/shared/dto/create-album.dto";
+import * as fs from 'fs';
 
 @Injectable()
 export class MusicianService {
@@ -58,7 +59,7 @@ export class MusicianService {
         gender: Gender,
         nationality: string,
         type: ArtistType,
-        image: any,
+        image: string,
     ): Promise<Musician> {
         const musician = new Musician();
         musician.name = name;
@@ -72,6 +73,15 @@ export class MusicianService {
     }
 
     async deleteMusician(musicianId: number): Promise<DeleteResult> {
+        const musician = await this.getMusicianById(musicianId);
+        if (musician.image) {
+            fs.unlink(musician.image, (err) => {
+                if (err) {
+                    console.log('--------------------------------', err);
+                }
+            });
+        }
+
         const result = await this.musicianRepository.delete(musicianId)
         if (result.affected === 0) {
             throw new NotFoundException(`Musician with id ${musicianId} does not found`);
@@ -86,7 +96,7 @@ export class MusicianService {
         gender: Gender,
         nationality: string,
         type: ArtistType,
-        image: any,
+        image: string,
     ): Promise<Musician> {
         const musician = await this.getMusicianById(id);
         if (name) {
@@ -105,6 +115,11 @@ export class MusicianService {
             musician.type = type;
         }
         if (image) {
+            fs.unlink(musician.image, (err) => {
+                if (err) {
+                    console.log('--------------------------------', err);
+                }
+            });
             musician.image = image;
         }
         const savedMusician = await musician.save();

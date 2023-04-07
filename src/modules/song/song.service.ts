@@ -5,6 +5,7 @@ import { Song } from "./song.entity";
 import { SongType } from "src/commons/enums/song-type.enum";
 import { SongLanguage } from "src/commons/enums/song-language.enum";
 import { DeleteResult } from "typeorm";
+import * as fs from 'fs';
 
 @Injectable()
 export class SongService {
@@ -45,7 +46,7 @@ export class SongService {
         artist: string,
         type: SongType,
         language: SongLanguage,
-        image: any): Promise<Song> {
+        source: any): Promise<Song> {
         const song = await this.getSongById(id);
         if (name) {
             song.name = name;
@@ -62,14 +63,28 @@ export class SongService {
         if (language) {
             song.language = language;
         }
-        if (image) {
-            song.source = image;
+        if (source) {
+            fs.unlink(song.source, (err) => {
+                if (err) {
+                    console.log('--------------------------------', err);
+                }
+            });
+            song.source = source;
         }
         const updatedSong = await song.save();
         return updatedSong;
     }
 
     async deleteSong(id: number): Promise<DeleteResult> {
+        const song = await this.getSongById(id);
+        if (song.source) {
+            fs.unlink(song.source, (err) => {
+                if (err) {
+                    console.log('--------------------------------', err);
+                }
+            });
+        }
+
         const result = await this.songRepository.delete(id);
         if (result.affected === 0) {
             throw new NotFoundException(`Song with id ${id} does not found`);

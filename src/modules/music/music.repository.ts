@@ -3,7 +3,7 @@ import { EntityRepository, Repository } from "typeorm";
 import { Music } from "./music.entity";
 
 @EntityRepository(Music)
-export class MusicicRepository extends Repository<Music> {
+export class MusicRepository extends Repository<Music> {
     async getLimitedMusics(limit: number): Promise<Music[]> {
         const query = this.createQueryBuilder('music').select();
         if (limit) {

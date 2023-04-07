@@ -42,7 +42,7 @@ export class SongController {
     @Put(':id/update-song')
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
-            destination: './uploads/songs',
+            destination: './uploads/singer-album/songs',
             filename: (req, file, cb) => {
                 const filename: string = file.originalname.split('.')[0];
                 const fileExtension: string = file.originalname.split('.')[1];
@@ -52,7 +52,7 @@ export class SongController {
             }
         }),
         fileFilter: (req, file, cb) => {
-            if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+            if (!file.originalname.match(/\.(jpg|jpeg|png|gif|mp3)$/)) {
                 return cb(null, false);
             }
             cb(null, true);
