@@ -101,7 +101,6 @@ export class SingersService {
         return result;
     }
 
-    //lam sau
     async createNewAlbum(singerId: number, createAlbumDto: CreateAlbumDto): Promise<SingerAlbums> {
         const singer = await this.getSingerById(singerId);
         const singerAlbum = new SingerAlbums();

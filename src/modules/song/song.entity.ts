@@ -32,7 +32,7 @@ export class Song extends AbstractMusic {
     })
     tracks: Track[];
 
-    //Foreign Key
-    @Column()
-    singerAlbumId: number;
+    // //Foreign Key
+    // @Column()
+    // singerAlbumId: number;
 }

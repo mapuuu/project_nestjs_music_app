@@ -76,8 +76,7 @@ export class MusicianController {
     createNewAlbum(
         @Param('id') id: number,
         @Body('createAlbumDto') createAlbumDto: CreateAlbumDto) {
-        const { name } = createAlbumDto;
-        return { id, name };
+        return this.musicianService.createNewAlbum(id, createAlbumDto);
     }
 
     //localhost:3000/musicians/:id/update-musician

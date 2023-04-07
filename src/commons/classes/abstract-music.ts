@@ -1,6 +1,6 @@
 import { BaseEntity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-export abstract class AbstractMusic extends BaseEntity{
+export abstract class AbstractMusic extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

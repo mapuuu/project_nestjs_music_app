@@ -23,7 +23,7 @@ export class Music extends AbstractMusic {
     })
     tracks: Track[];
 
-    //Foreign Key
-    @Column()
-    musicianAlbumId: number;
+    // //Foreign Key
+    // @Column()
+    // musicianAlbumId: number;
 }
