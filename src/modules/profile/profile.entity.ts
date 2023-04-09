@@ -5,7 +5,7 @@ import { Favorite } from '../favorite/favorite.entity';
 
 @Entity('profiles')
 @Unique(['phone'])
-export class Profile {
+export class Profile extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 

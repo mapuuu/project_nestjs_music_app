@@ -3,23 +3,19 @@ import { User } from '../entities/user.entity';
 import { BadRequestException, ForbiddenException, ConflictException, NotFoundException } from '@nestjs/common';
 import { Role } from '../../../commons/enums/role.enum';
 import { EmailLoginDto } from '../dto/email-login.dto';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
     async findByEmail(email: string): Promise<User> {
         return await this.findOne({
-            where: {
-                email,
-            },
+            where: { email },
         });
     }
 
     async findByUsername(username: string): Promise<User> {
         return await this.findOne({
-            where: {
-                username,
-            },
+            where: { username },
         });
     }
 

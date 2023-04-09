@@ -1,13 +1,13 @@
 import { Auth } from 'src/commons/classes/auth';
 import { Role } from 'src/commons/enums/role.enum';
-import { Entity, Column, PrimaryGeneratedColumn, Unique, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Unique, OneToOne, JoinColumn, OneToMany, BaseEntity } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Profile } from 'src/modules/profile/profile.entity';
 import { Playlist } from 'src/modules/playlist/playlist.entity';
 
 @Entity('users')
 @Unique(['username', 'email'])
-export class User {
+export class User extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 

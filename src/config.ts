@@ -34,4 +34,19 @@ export const config = {
     synchronize: true,
     autoLoadEntities: true,
   },
+
+  nodeMailerOptions: {
+    transport: {
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        username: 'phutoannguyen2271@gmail.com',
+        pass: 'trwqseswognmrbnf',
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    },
+  },
 }

@@ -16,6 +16,7 @@ import { SingerAlbumModule } from './modules/singer-album/singer-album.module';
 import { SongModule } from './modules/song/song.module';
 import { TrackModule } from './modules/track/track.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { NodemailerModule, NodemailerDrivers, NodemailerOptions } from '@crowdlinker/nestjs-mailer';
 
 @Module({
   imports: [
@@ -23,16 +24,7 @@ import { MulterModule } from '@nestjs/platform-express';
     MulterModule.register({
       dest: '../uploads'
     }),
-    // ConfigModule.forRoot({
-    //   validationSchema: Joi.object({
-    //     POSTGRES_HOST: Joi.string().required(),
-    //     POSTGRES_PORT: Joi.number().required(),
-    //     POSTGRES_USER: Joi.string().required(),
-    //     POSTGRES_PASSWORD: Joi.string().required(),
-    //     POSTGRES_DB: Joi.string().required(),
-    //     // PORT: Joi.number(),
-    //   }),
-    // }),
+    NodemailerModule.forRoot(config.nodeMailerOptions as NodemailerOptions<NodemailerDrivers.SMTP>),
     AuthModule,
     ProfileModule,
     FavoriteModule,
