@@ -9,6 +9,8 @@ import { SingerAlbums } from "./modules/singer-album/singer-album.entity";
 import { Singer } from "./modules/singer/singer.entity";
 import { Song } from "./modules/song/song.entity";
 import { Track } from "./modules/track/track.entity";
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export const config = {
   db: {
@@ -41,8 +43,8 @@ export const config = {
       port: 465,
       secure: true,
       auth: {
-        username: 'phutoannguyen2271@gmail.com',
-        pass: 'trwqseswognmrbnf',
+        username: process.env.USERNAME,
+        pass: process.env.PASSWORD,
       },
       tls: {
         rejectUnauthorized: false,
