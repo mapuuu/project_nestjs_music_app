@@ -1,4 +1,4 @@
-import { BaseEntity, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Profile } from "../profile/profile.entity";
 import { Track } from "../track/track.entity";
 
@@ -7,7 +7,7 @@ export class Favorite extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToMany(type => Profile, profile => profile.favorite)
+    @OneToOne(type => Profile, profile => profile.favorite)
     profile: Profile;
 
     @OneToMany(type => Track, track => track.playlists, {

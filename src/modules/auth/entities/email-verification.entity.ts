@@ -12,6 +12,8 @@ export class EmailVerification extends BaseEntity {
   @Column()
   emailToken: string;
 
-  @Column()
+  @Column({
+    default: new Date()
+  })
   timestamp: Date;
 }

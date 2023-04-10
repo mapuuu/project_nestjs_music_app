@@ -17,6 +17,8 @@ import { SongModule } from './modules/song/song.module';
 import { TrackModule } from './modules/track/track.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { NodemailerModule, NodemailerDrivers, NodemailerOptions } from '@crowdlinker/nestjs-mailer';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Module({
   imports: [
@@ -24,7 +26,21 @@ import { NodemailerModule, NodemailerDrivers, NodemailerOptions } from '@crowdli
     MulterModule.register({
       dest: '../uploads'
     }),
-    NodemailerModule.forRoot(config.nodeMailerOptions as NodemailerOptions<NodemailerDrivers.SMTP>),
+    NodemailerModule.forRoot(
+      {
+        transport: {
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: 'phutoannguyen2271@gmail.com',
+            pass: process.env.PASSWORD,
+          },
+          tls: {
+            rejectUnauthorized: false,
+          },
+        },
+      } as NodemailerOptions<NodemailerDrivers.SMTP>),
     AuthModule,
     ProfileModule,
     FavoriteModule,

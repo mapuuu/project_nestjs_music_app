@@ -6,6 +6,8 @@ import { AuthConstants } from 'src/commons/constants/auth-constants';
 import { JwtModule } from '@nestjs/jwt';
 import { EmailVerification } from './entities/email-verification.entity';
 import { JwtStrategy } from './stratigies/jwt-strategy';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
 
 @Module({
     imports: [
@@ -20,8 +22,8 @@ import { JwtStrategy } from './stratigies/jwt-strategy';
             },
         }),
     ],
-    providers: [JwtStrategy],
-    controllers: [],
+    providers: [AuthService, JwtStrategy],
+    controllers: [AuthController],
     exports: [JwtStrategy, JwtModule, PassportModule],
 })
 export class AuthModule { }

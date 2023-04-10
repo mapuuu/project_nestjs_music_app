@@ -37,18 +37,9 @@ export const config = {
     autoLoadEntities: true,
   },
 
-  nodeMailerOptions: {
-    transport: {
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        username: process.env.USERNAME,
-        pass: process.env.PASSWORD,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    },
+  frontEndKeys: {
+    url: 'localhost',
+    port: 4200,
+    endpoints: ['auth/reset-password', 'auth/verify-email'],
   },
 }
