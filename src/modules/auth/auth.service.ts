@@ -13,6 +13,9 @@ import { EmailVerification } from "./entities/email-verification.entity";
 import { Repository } from "typeorm";
 import { Nodemailer, NodemailerDrivers } from "@crowdlinker/nestjs-mailer";
 import { config } from "src/config";
+import { EmailLoginDto } from "./dto/email-login.dto";
+import { JwtPayload } from "src/commons/interfaces/jwt-payload.interface";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class AuthService {
@@ -20,6 +23,7 @@ export class AuthService {
         @InjectRepository(UserRepository) private userRepository: UserRepository,
         @InjectRepository(EmailVerification) private emailVerificationRepo: Repository<EmailVerification>,
         private nodeMailerService: Nodemailer<NodemailerDrivers.SMTP>,
+        private jwtService: JwtService,
     ) { }
 
     async signUp(
@@ -61,9 +65,18 @@ export class AuthService {
 
         //sending email verification
         await this.createEmailToken(email);
-        console.log('-------check');
         await this.sendEmailVerification(email);
         await user.save();
+    }
+
+    async singIn(emailLoginDto: EmailLoginDto): Promise<{ accessToken: string, user: User }> {
+        if (!(await this.isValidEmail(emailLoginDto.email))) {
+            throw new BadRequestException('Invalid Email Signature');
+        }
+        const { email, user } = await this.userRepository.validateUserPassword(emailLoginDto);
+        const payload: JwtPayload = { email };
+        const accessToken = this.jwtService.sign(payload);
+        return { accessToken, user };
     }
 
     async createProfile(user: User, createProfileDto: CreateProfileDto): Promise<Profile> {
@@ -116,7 +129,6 @@ export class AuthService {
     async sendEmailVerification(email: string): Promise<any> {
         const verifiedEmail = await this.emailVerificationRepo.findOne({ email });
         if (verifiedEmail && verifiedEmail.emailToken) {
-            console.log('-------email', email);
             const url = `<a style='text-decoration:none;' 
             href= http://${config.frontEndKeys.url}:${config.frontEndKeys.port}/${config.frontEndKeys.endpoints[1]}/${verifiedEmail.emailToken}>Click Here to confirm your email</a>`;
             return await this.nodeMailerService.sendMail({
