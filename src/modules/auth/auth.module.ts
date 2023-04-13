@@ -8,10 +8,11 @@ import { EmailVerification } from './entities/email-verification.entity';
 import { JwtStrategy } from './stratigies/jwt-strategy';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { ForgottenPassword } from './entities/forgotten-password.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([UserRepository, EmailVerification]),
+        TypeOrmModule.forFeature([UserRepository, EmailVerification, ForgottenPassword]),
         PassportModule.register({
             defaultStrategy: AuthConstants.strategies
         }),

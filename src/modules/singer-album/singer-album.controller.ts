@@ -6,7 +6,9 @@ import { diskStorage } from "multer";
 import { SongType } from "src/commons/enums/song-type.enum";
 import { SongLanguage } from "src/commons/enums/song-language.enum";
 import { ParseIntPipe } from "@nestjs/common";
+import { ApiTags } from '@nestjs/swagger';
 @Controller('singer-albums')
+@ApiTags("Singer-Album")
 export class SingerAlbummController {
 
     constructor(

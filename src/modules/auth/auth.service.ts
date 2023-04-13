@@ -16,12 +16,15 @@ import { config } from "src/config";
 import { EmailLoginDto } from "./dto/email-login.dto";
 import { JwtPayload } from "src/commons/interfaces/jwt-payload.interface";
 import { JwtService } from "@nestjs/jwt";
+import { ForgottenPassword } from "./entities/forgotten-password.entity";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(UserRepository) private userRepository: UserRepository,
         @InjectRepository(EmailVerification) private emailVerificationRepo: Repository<EmailVerification>,
+        @InjectRepository(ForgottenPassword) private forgotPasswordRepo: Repository<ForgottenPassword>,
         private nodeMailerService: Nodemailer<NodemailerDrivers.SMTP>,
         private jwtService: JwtService,
     ) { }
@@ -171,5 +174,83 @@ export class AuthService {
         } else {
             return false;
         }
+    }
+
+    async sendEmailForgottenPassword(email: string): Promise<any> {
+        const user = await this.userRepository.findOne({ email });
+        if (!user) {
+            throw new HttpException('LOGIN_USER_NOT_FOUND', HttpStatus.NOT_FOUND);
+        }
+        const tokenModel = await this.createForgottenPasswordToken(email);
+        if (tokenModel && tokenModel.newPasswordToken) {
+            const url = `<a style='text-decoration:none;' 
+            href= http://${config.frontEndKeys.url}:${config.frontEndKeys.port}/${config.frontEndKeys.endpoints[0]}/${tokenModel.newPasswordToken}>Click here to reset password</a>`;
+            return await this.nodeMailerService.sendMail({
+                from: `Company <phutoannguyen2271@gmail.com>`,
+                to: email,
+                subject: 'Reset Your Password',
+                text: 'Reset Your Password',
+                html: `<h1>Hi User</h1> <br><br> <h2>ThanYou have requested to reset your password , please click the following link to change your password</h2>
+            <h3>Please click the following link</h3><br><br>
+        ${url}`,
+            }).then(info => {
+                console.log('Message sent: %s', info.messageId);
+            }).catch(err => {
+                console.log('Message sent: %s', err);
+            });
+        }
+    }
+
+    async createForgottenPasswordToken(email: string) {
+        let forgottenPassword = await this.forgotPasswordRepo.findOne({ email });
+        if (forgottenPassword && ((new Date().getTime() - forgottenPassword.timestamp.getTime()) / 60000) < 15) {
+            throw new HttpException('RESET_PASSWORD_EMAIL_SENT_RECENTLY', HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            forgottenPassword = new ForgottenPassword();
+            forgottenPassword.email = email;
+            forgottenPassword.timestamp = new Date();
+            forgottenPassword.newPasswordToken = (Math.floor(Math.random() * (900000)) + 100000).toString();
+            return await forgottenPassword.save();
+        }
+    }
+
+    async checkPassword(email: string, password: string) {
+        const user = await this.userRepository.findOne({ email });
+        if (!user) {
+            throw new HttpException('User dose not found', HttpStatus.NOT_FOUND);
+        }
+        return await bcrypt.compare(password, user.password);
+    }
+
+    async setNewPassword(resetPasswordDto: ResetPasswordDto) {
+        let isNewPasswordChanged = false;
+        const { email, newPasswordToken, currentPassword, newPassword } = resetPasswordDto;
+        if (email && currentPassword) {
+            const isValidPassword = await this.checkPassword(email, currentPassword);
+            if (isValidPassword) {
+                isNewPasswordChanged = await this.setPassword(email, newPassword);
+            } else {
+                throw new HttpException('RESET_PASSWORD_WRONG_CURRENT_PASSWORD', HttpStatus.CONFLICT);
+            }
+        } else if (newPasswordToken) {
+            const forgottenPassword = await this.forgotPasswordRepo.findOne({ newPasswordToken });
+            isNewPasswordChanged = await this.setPassword(forgottenPassword.email, newPassword);
+            if (isNewPasswordChanged) {
+                await this.forgotPasswordRepo.delete(forgottenPassword.id);
+            }
+        } else {
+            return new HttpException('RESET_PASSWORD_CHANGE_PASSWORD_ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return isNewPasswordChanged;
+    }
+
+    async setPassword(email: string, newPassword: string) {
+        const user = await this.userRepository.findOne({ email });
+        if (!user) {
+            throw new HttpException('User dose not found', HttpStatus.NOT_FOUND);
+        }
+        user.password = await this.userRepository.hashPassword(newPassword, user.salt);
+        await user.save();
+        return true;
     }
 }

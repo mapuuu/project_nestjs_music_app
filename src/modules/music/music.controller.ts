@@ -3,7 +3,9 @@ import { MusicType } from "src/commons/enums/music-type.enum";
 import { MusicService } from "./music.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
+import { ApiTags } from '@nestjs/swagger';
 @Controller('musics')
+@ApiTags("Music")
 export class MusicController {
 
     constructor(private musicService: MusicService) {

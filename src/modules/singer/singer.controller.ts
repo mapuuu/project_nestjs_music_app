@@ -5,8 +5,10 @@ import { CreateAlbumDto } from "src/shared/dto/create-album.dto";
 import { SingersService } from "./singers.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('singers')
+@ApiTags("Singers")
 export class SingerController {
 
     constructor(

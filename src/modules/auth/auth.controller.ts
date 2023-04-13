@@ -9,8 +9,11 @@ import { Roles } from "src/commons/decorators/roles.decorator";
 import { Role } from "src/commons/enums/role.enum";
 import { AdminAuthGuard } from "src/commons/guards/admin-auth.guard";
 import { AcceptedAuthGuard } from "src/commons/guards/accepted-auth.guard";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
 
     constructor(private authService: AuthService) {
@@ -34,24 +37,34 @@ export class AuthController {
         return this.authService.singIn(emailLoginDto);
     }
 
-    @Get('user-endpoint')
-    @UseGuards(AuthGuard(), UserAuthGuard)
-    @Roles([Role.USER])
-    userEndpoint() {
-        return 'You have the access to this endpoint as user';
+    @Get('email/forgot-password/:email')
+    sendEmailForgotPassword(@Param('email') email: string) {
+        return this.authService.sendEmailForgottenPassword(email);
     }
 
-    @Get('admin-endpoint')
-    @UseGuards(AuthGuard(), AdminAuthGuard)
-    @Roles([Role.ADMIN])
-    adminEndpoint() {
-        return 'You have the access to this endpoint as admin';
+    @Post('email/reset-password')
+    setNewPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+        return this.authService.setNewPassword(resetPasswordDto);
     }
 
-    @Get('accepted-endpoint')
-    @UseGuards(AuthGuard(), AcceptedAuthGuard)
-    @Roles([Role.ADMIN, Role.USER])
-    acceptedEndpoint() {
-        return 'You have the access to this endpoint as admin or user';
-    }
+    // @Get('user-endpoint')
+    // @UseGuards(AuthGuard(), UserAuthGuard)
+    // @Roles([Role.USER])
+    // userEndpoint() {
+    //     return 'You have the access to this endpoint as user';
+    // }
+
+    // @Get('admin-endpoint')
+    // @UseGuards(AuthGuard(), AdminAuthGuard)
+    // @Roles([Role.ADMIN])
+    // adminEndpoint() {
+    //     return 'You have the access to this endpoint as admin';
+    // }
+
+    // @Get('accepted-endpoint')
+    // @UseGuards(AuthGuard(), AcceptedAuthGuard)
+    // @Roles([Role.ADMIN, Role.USER])
+    // acceptedEndpoint() {
+    //     return 'You have the access to this endpoint as admin or user';
+    // }
 }

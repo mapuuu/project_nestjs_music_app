@@ -5,7 +5,9 @@ import { MusicianService } from "./musician.service";
 import { ArtistType } from "src/commons/enums/artist-type.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
+import { ApiTags } from '@nestjs/swagger';
 @Controller('musicians')
+@ApiTags("Musician")
 export class MusicianController {
 
     constructor(
