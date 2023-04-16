@@ -9,7 +9,7 @@ import { ApiTags } from "@nestjs/swagger";
 @UseGuards(AuthGuard(), UserAuthGuard)
 @Roles([Role.USER])
 @Controller('favorite-lists')
-@ApiTags("favorite-lists")
+@ApiTags("Favorite-lists")
 export class FavoriteController {
 
     constructor(private favoriteListService: FavoriteService) {

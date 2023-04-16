@@ -11,7 +11,9 @@ export class Playlist extends BaseEntity {
     @Column()
     name: string;
 
-    @Column()
+    @Column({
+        default: new Date()
+    })
     createdAt: Date;
 
     @ManyToOne(type => User, user => user.playlists, {

@@ -3,7 +3,7 @@ import { Playlist } from "./playlist.entity";
 
 @EntityRepository(Playlist)
 export class PlaylistRepository extends Repository<Playlist> {
-    async getUsersPlaylists(userId: number): Promise<Playlist[]> {
+    async getUserPlaylists(userId: number): Promise<Playlist[]> {
         const query = this.createQueryBuilder('playlist').select();
         if (userId) {
             query.where('playlist.userId = :userId', { userId });
