@@ -11,6 +11,8 @@ import { AdminAuthGuard } from "src/commons/guards/admin-auth.guard";
 import { AcceptedAuthGuard } from "src/commons/guards/accepted-auth.guard";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { ApiTags } from '@nestjs/swagger';
+import { GetAuthenticatedUser } from "src/commons/decorators/get-authenticated-user.decorator";
+import { User } from "./entities/user.entity";
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -47,24 +49,10 @@ export class AuthController {
         return this.authService.setNewPassword(resetPasswordDto);
     }
 
-    // @Get('user-endpoint')
-    // @UseGuards(AuthGuard(), UserAuthGuard)
-    // @Roles([Role.USER])
-    // userEndpoint() {
-    //     return 'You have the access to this endpoint as user';
-    // }
-
-    // @Get('admin-endpoint')
-    // @UseGuards(AuthGuard(), AdminAuthGuard)
-    // @Roles([Role.ADMIN])
-    // adminEndpoint() {
-    //     return 'You have the access to this endpoint as admin';
-    // }
-
-    // @Get('accepted-endpoint')
-    // @UseGuards(AuthGuard(), AcceptedAuthGuard)
-    // @Roles([Role.ADMIN, Role.USER])
-    // acceptedEndpoint() {
-    //     return 'You have the access to this endpoint as admin or user';
-    // }
+    @Get('user-main-data')
+    @UseGuards(AuthGuard(), AcceptedAuthGuard)
+    @Roles([Role.USER, Role.ADMIN])
+    getUserData(@GetAuthenticatedUser() user: User) {
+        return this.authService.getUserMainData(user);
+    }
 }

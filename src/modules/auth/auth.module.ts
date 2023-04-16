@@ -9,6 +9,8 @@ import { JwtStrategy } from './stratigies/jwt-strategy';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { ForgottenPassword } from './entities/forgotten-password.entity';
+import { ProfileModule } from '../profile/profile.module';
+import { FavoriteModule } from '../favorite/favorite.module';
 
 @Module({
     imports: [
@@ -22,6 +24,8 @@ import { ForgottenPassword } from './entities/forgotten-password.entity';
                 expiresIn: AuthConstants.expiresIn,
             },
         }),
+        ProfileModule,
+        FavoriteModule,
     ],
     providers: [AuthService, JwtStrategy],
     controllers: [AuthController],

@@ -18,6 +18,8 @@ import { JwtPayload } from "src/commons/interfaces/jwt-payload.interface";
 import { JwtService } from "@nestjs/jwt";
 import { ForgottenPassword } from "./entities/forgotten-password.entity";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
+import { ProfileService } from "../profile/profile.service";
+import { FavoriteService } from "../favorite/favorite.service";
 
 @Injectable()
 export class AuthService {
@@ -27,6 +29,8 @@ export class AuthService {
         @InjectRepository(ForgottenPassword) private forgotPasswordRepo: Repository<ForgottenPassword>,
         private nodeMailerService: Nodemailer<NodemailerDrivers.SMTP>,
         private jwtService: JwtService,
+        private profileService: ProfileService,
+        private favoriteService: FavoriteService,
     ) { }
 
     async signUp(
@@ -70,6 +74,16 @@ export class AuthService {
         await this.createEmailToken(email);
         await this.sendEmailVerification(email);
         await user.save();
+    }
+
+    async getUserMainData(user: User): Promise<{ user: User, profile: Profile, favorite: Favorite }> {
+        const profile = await this.profileService.getProfileData(user);
+        const favorite = await this.favoriteService.getUserFavoriteList(profile.favoriteId);
+        return {
+            user,
+            profile,
+            favorite,
+        };
     }
 
     async singIn(emailLoginDto: EmailLoginDto): Promise<{ accessToken: string, user: User }> {
