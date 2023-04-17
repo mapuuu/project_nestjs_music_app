@@ -18,7 +18,7 @@ export class Music extends AbstractMusic {
     })
     musicianAlbums: MusicianAlbums;
 
-    @OneToMany(type => Track, track => track.playlists, {
+    @OneToMany(type => Track, track => track.playlist, {
         eager: true,
     })
     tracks: Track[];

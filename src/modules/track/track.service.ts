@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { Song } from "../song/song.entity";
 import { Music } from "../music/music.entity";
 import { Favorite } from "../favorite/favorite.entity";
+import { Playlist } from "../playlist/playlist.entity";
 
 @Injectable()
 export class TrackService {
@@ -18,6 +19,13 @@ export class TrackService {
         let track = new Track();
         track = this.checkTrackType(track, song, music);
         track.favorite = favorite; // creation of a foreign key called favoriteId
+        return await track.save();
+    }
+
+    async pushToPlaylist(song: Song, music: Music, playlist: Playlist) {
+        let track = new Track();
+        track = this.checkTrackType(track, song, music);
+        track.playlist = playlist; // creation of a foreign key called playlistId
         return await track.save();
     }
 

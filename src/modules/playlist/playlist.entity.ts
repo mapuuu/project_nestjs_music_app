@@ -21,7 +21,7 @@ export class Playlist extends BaseEntity {
     })
     user: User;
 
-    @OneToMany(type => Track, track => track.playlists, {
+    @OneToMany(type => Track, track => track.playlist, {
         eager: true,
     })
     tracks: Track[];

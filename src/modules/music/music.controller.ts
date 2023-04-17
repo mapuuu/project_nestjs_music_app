@@ -84,7 +84,7 @@ export class MusicController {
     @UseGuards(AuthGuard(), UserAuthGuard)
     @Roles([Role.USER])
     addToPlaylist(@Param('musicId') musicId: number, @Param('playlistId') playlistId: number) {
-        return { playlistIdis: playlistId, musicIdIs: musicId };
+        return this.musicService.pushToPlaylist(musicId, playlistId);
     }
 
     //localhost:3000/musics/:musicId/save-to-favourite-list/:favouriteId

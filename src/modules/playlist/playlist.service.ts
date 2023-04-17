@@ -4,12 +4,16 @@ import { User } from "../auth/entities/user.entity";
 import { Playlist } from "./playlist.entity";
 import { PlaylistDto } from "./dto/playlist.dto";
 import { DeleteResult } from "typeorm";
+import { Song } from "../song/song.entity";
+import { Music } from "../music/music.entity";
+import { TrackService } from "../track/track.service";
 
 @Injectable()
 export class PlaylistService {
 
-    constructor(private playlistRepository: PlaylistRepository) {
-
+    constructor(private playlistRepository: PlaylistRepository,
+        private trackService: TrackService,
+    ) {
     }
 
     async getUserPlaylists(user: User): Promise<Playlist[]> {
@@ -47,6 +51,7 @@ export class PlaylistService {
     }
 
     async deletePlaylist(id: number): Promise<DeleteResult> {
+        await this.clearPlaylistContent(id);
         const result = await this.playlistRepository.delete(id);
         if (result.affected === 0) {
             throw new NotFoundException(`Playlist with Id ${id} Does not found`);
@@ -54,4 +59,30 @@ export class PlaylistService {
         return result;
     }
 
+    async clearPlaylistContent(id: number): Promise<Playlist> {
+        const playlist = await this.getPlaylistById(id);
+        for (let i = 0; i < playlist.tracks.length; i++) {
+            await this.trackService.deleteTrack(playlist.tracks[i].id);
+        }
+        playlist.tracks = [];
+        return await playlist.save();
+    }
+
+    async removeTrackFromPlaylist(playlistId: number, trackId: number): Promise<Playlist> {
+        const playlist = await this.getPlaylistById(playlistId);
+        for (let i = 0; i < playlist.tracks.length; i++) {
+            if (playlist.tracks[i].id === trackId) {
+                await this.trackService.deleteTrack(trackId);
+                playlist.tracks.splice(i, 1);
+                break;
+            }
+        }
+        return await playlist.save();
+    }
+
+    async createPlaylistTrack(song: Song, music: Music, playlistId: number) {
+        const playlist = await this.getPlaylistById(playlistId);
+        const track = this.trackService.pushToPlaylist(song, music, playlist);
+        return track;
+    }
 }

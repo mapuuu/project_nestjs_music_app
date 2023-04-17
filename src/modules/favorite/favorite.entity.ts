@@ -10,7 +10,7 @@ export class Favorite extends BaseEntity {
     @OneToOne(type => Profile, profile => profile.favorite)
     profile: Profile;
 
-    @OneToMany(type => Track, track => track.playlists, {
+    @OneToMany(type => Track, track => track.playlist, {
         eager: true,
     })
     tracks: Track[];

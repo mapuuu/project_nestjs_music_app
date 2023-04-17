@@ -51,7 +51,7 @@ export class PlaylistController {
 
     @Delete(':id/clear-playlist')
     clearPlaylistContent(@Param('id', ParseIntPipe) id: number) {
-
+        return this.playlistService.clearPlaylistContent(id);
     }
 
     @Delete(':playlistId/remove-track-from-playlist/:trackId')
@@ -59,6 +59,6 @@ export class PlaylistController {
         @Param('playlistId', ParseIntPipe) playlistId: number,
         @Param('trackId', ParseIntPipe) trackId: number
     ) {
-
+        return this.playlistService.removeTrackFromPlaylist(playlistId, trackId);
     }
 }

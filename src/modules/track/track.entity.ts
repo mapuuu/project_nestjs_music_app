@@ -22,7 +22,7 @@ export class Track extends BaseEntity {
     @ManyToOne(type => Playlist, playlist => playlist.tracks, {
         eager: false,
     })
-    playlists: Playlist;
+    playlist: Playlist;
 
     @ManyToOne(type => Favorite, favorite => favorite.tracks, {
         eager: false,

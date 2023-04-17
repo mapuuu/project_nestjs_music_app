@@ -7,6 +7,7 @@ import { DeleteResult } from "typeorm";
 import * as fs from 'fs';
 import { FavoriteService } from "../favorite/favorite.service";
 import { Track } from "../track/track.entity";
+import { PlaylistService } from "../playlist/playlist.service";
 
 @Injectable()
 export class MusicService {
@@ -14,6 +15,7 @@ export class MusicService {
     constructor(
         @InjectRepository(MusicRepository) private musicRepository: MusicRepository,
         private favoriteService: FavoriteService,
+        private playlistService: PlaylistService,
     ) {
     }
 
@@ -95,6 +97,12 @@ export class MusicService {
     async pushToFavoriteList(musicId: number, favoriteListId: number): Promise<Track> {
         const music = await this.getMusicById(musicId);
         const track = await this.favoriteService.createFavoriteTrack(null, music, favoriteListId);
+        return track;
+    }
+
+    async pushToPlaylist(musicId: number, playlistId: number): Promise<Track> {
+        const music = await this.getMusicById(musicId);
+        const track = await this.playlistService.createPlaylistTrack(null, music, playlistId);
         return track;
     }
 }
