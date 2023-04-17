@@ -87,6 +87,6 @@ export class SongController {
     //localhost:3000/songs/:songId/save-to-favorite-list/:favoriteId
     @Post(':songId/save-to-favorite-list/:favoriteId')
     saveToFavoriteList(@Param('songId') songId: number, @Param('favoriteId') favoriteId: number) {
-        return { favoriteIdIs: favoriteId, songIdIs: songId };
+        return this.songService.pushToFavoriteList(songId, favoriteId);
     }
 }

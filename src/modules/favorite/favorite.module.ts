@@ -5,6 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthConstants } from 'src/commons/constants/auth-constants';
 import { FavoriteController } from './favorite.controller';
 import { FavoriteService } from './favorite.service';
+import { TrackModule } from '../track/track.module';
 
 @Module({
     imports: [
@@ -12,6 +13,7 @@ import { FavoriteService } from './favorite.service';
         PassportModule.register({
             defaultStrategy: AuthConstants.strategies
         }),
+        TrackModule,
     ],
     controllers: [FavoriteController],
     providers: [FavoriteService],

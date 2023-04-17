@@ -22,7 +22,7 @@ export class FavoriteController {
 
     @Delete(':id/clear-favorite-list')
     clearFavoriteList(@Param('id', ParseIntPipe) id: number) {
-
+        return this.favoriteListService.clearFavoriteListContent(id);
     }
 
     @Delete(':favoriteId/remove-track-from-favorite-list/:trackId')
@@ -30,6 +30,6 @@ export class FavoriteController {
         @Param('favoriteId', ParseIntPipe) favoriteId: number,
         @Param('trackId', ParseIntPipe) trackId: number
     ) {
-
+        return this.favoriteListService.removeTrackFromFavouriteList(favoriteId, trackId);
     }
 }

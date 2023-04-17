@@ -6,11 +6,15 @@ import { SongType } from "src/commons/enums/song-type.enum";
 import { SongLanguage } from "src/commons/enums/song-language.enum";
 import { DeleteResult } from "typeorm";
 import * as fs from 'fs';
+import { FavoriteService } from "../favorite/favorite.service";
+import { Track } from "../track/track.entity";
 
 @Injectable()
 export class SongService {
     constructor(
-        @InjectRepository(SongRepository) private songRepository: SongRepository) {
+        @InjectRepository(SongRepository) private songRepository: SongRepository,
+        private favoriteService: FavoriteService,
+    ) {
     }
 
     async getAllSongs(): Promise<Song[]> {
@@ -90,5 +94,11 @@ export class SongService {
             throw new NotFoundException(`Song with id ${id} does not found`);
         }
         return result;
+    }
+
+    async pushToFavoriteList(songId: number, favoriteListId: number): Promise<Track> {
+        const song = await this.getSongById(songId);
+        const track = await this.favoriteService.createFavoriteTrack(song, null, favoriteListId);
+        return track;
     }
 }
