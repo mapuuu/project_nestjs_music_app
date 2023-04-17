@@ -1,9 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { MusicType } from "src/commons/enums/music-type.enum";
 import { MusicService } from "./music.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from "@nestjs/passport";
+import { UserAuthGuard } from "src/commons/guards/user-auth.guard";
+import { Roles } from "src/commons/decorators/roles.decorator";
+import { Role } from "src/commons/enums/role.enum";
 @Controller('musics')
 @ApiTags("Music")
 export class MusicController {
@@ -77,13 +81,17 @@ export class MusicController {
 
     //localhost:3000/musics/:musicId/add-to-playlist/:playlistId
     @Post(':musicId/add-to-playlist/:playlistId')
+    @UseGuards(AuthGuard(), UserAuthGuard)
+    @Roles([Role.USER])
     addToPlaylist(@Param('musicId') musicId: number, @Param('playlistId') playlistId: number) {
         return { playlistIdis: playlistId, musicIdIs: musicId };
     }
 
     //localhost:3000/musics/:musicId/save-to-favourite-list/:favouriteId
     @Post(':musicId/save-to-favourite-list/:favouriteId')
+    @UseGuards(AuthGuard(), UserAuthGuard)
+    @Roles([Role.USER])
     saveToFavouriteList(@Param('musicId') musicId: number, @Param('favouriteId') favouriteId: number) {
-        return { favouriteIdIs: favouriteId, musicIdIs: musicId };
+        return this.musicService.pushToFavoriteList(musicId, favouriteId);
     }
 }
