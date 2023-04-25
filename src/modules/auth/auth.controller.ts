@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Param, UseGuards } from "@nestjs/common";
+import { Body, Controller, Post, Get, Param, UseGuards, Put, ParseIntPipe, Delete } from "@nestjs/common";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
 import { CreateProfileDto } from "./dto/create-profile.dto";
 import { AuthService } from "./auth.service";
@@ -34,9 +34,9 @@ export class AuthController {
         return this.authService.verifyEmail(token);
     }
 
-    @Post('login')
-    signIn(@Body('emailLoginDto') emailLoginDto: EmailLoginDto) {
-        return this.authService.singIn(emailLoginDto);
+    @Post('login/user')
+    signInUser(@Body('emailLoginDto') emailLoginDto: EmailLoginDto) {
+        return this.authService.singInUser(emailLoginDto);
     }
 
     @Get('email/forgot-password/:email')
@@ -54,5 +54,36 @@ export class AuthController {
     @Roles([Role.USER, Role.ADMIN])
     getUserData(@GetAuthenticatedUser() user: User) {
         return this.authService.getUserMainData(user);
+    }
+
+    @Delete('delete-user-account')
+    @UseGuards(AuthGuard(), UserAuthGuard)
+    @Roles([Role.USER])
+    deleteUserAccount(@GetAuthenticatedUser() user: User) {
+        return this.authService.deleteUserAccount(user);
+    }
+
+    @Get('check-username/:username')
+    isValidUsername(@Param('username') username: string) {
+        return this.authService.isValidUsername(username);
+    }
+
+    @Post('login/admin')
+    signInAdmin(@Body() emailLoginDto: EmailLoginDto) {
+        return this.authService.singInUser(emailLoginDto);
+    }
+
+    @Get('system-users')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
+    getSystemUsers() {
+        return this.authService.getSystemUsers();
+    }
+
+    @Put('edit-user-roles/:userId')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
+    editUserRoles(@Param('userId', ParseIntPipe) userId: number, @Body() roles: Role[]) {
+        return this.authService.editUserRoles(userId, roles);
     }
 }

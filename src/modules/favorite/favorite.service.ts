@@ -29,6 +29,14 @@ export class FavoriteService {
         return favoriteList;
     }
 
+    async deleteFavoriteList(id: number): Promise<void> {
+        await this.clearFavoriteListContent(id);
+        const result = await this.favoriteRepository.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException('favorite list does not found');
+        }
+    }
+
     async clearFavoriteListContent(id: number): Promise<Favorite> {
         const favorite = await this.getUserFavoriteList(id);
         for (let i = 0; i < favorite.tracks.length; i++) {

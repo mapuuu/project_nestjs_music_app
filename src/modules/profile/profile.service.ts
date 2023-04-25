@@ -26,6 +26,13 @@ export class ProfileService {
         return profile;
     }
 
+    async deleteProfile(id: number): Promise<void> {
+        const result = await this.profileRepository.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException('profile does not found');
+        }
+    }
+
     async editProfile(
         user: User,
         createProfileDto: CreateProfileDto

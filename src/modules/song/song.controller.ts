@@ -9,6 +9,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { UserAuthGuard } from "src/commons/guards/user-auth.guard";
 import { Roles } from "src/commons/decorators/roles.decorator";
 import { Role } from "src/commons/enums/role.enum";
+import { AdminAuthGuard } from "src/commons/guards/admin-auth.guard";
 @Controller('songs')
 @ApiTags("Song")
 export class SongController {
@@ -46,6 +47,8 @@ export class SongController {
 
     //localhost:3000/songs/:id/update-song
     @Put(':id/update-song')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: './uploads/singer-album/songs',
@@ -78,6 +81,8 @@ export class SongController {
 
     //localhost:3000/songs/:id/delete-song
     @Delete(':id/delete-song')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     deleteSong(@Param('id') id: number) {
         return this.songService.deleteSong(id);
     }

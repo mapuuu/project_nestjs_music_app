@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors, UseGuards } from "@nestjs/common";
 import { Gender } from "src/commons/enums/gender.enum";
 import { CreateAlbumDto } from "src/shared/dto/create-album.dto";
 import { MusicianService } from "./musician.service";
@@ -6,6 +6,11 @@ import { ArtistType } from "src/commons/enums/artist-type.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { ApiTags } from '@nestjs/swagger';
+
+import { Roles } from "src/commons/decorators/roles.decorator";
+import { Role } from "src/commons/enums/role.enum";
+import { AdminAuthGuard } from "src/commons/guards/admin-auth.guard";
+import { AuthGuard } from "@nestjs/passport";
 @Controller('musicians')
 @ApiTags("Musician")
 export class MusicianController {
@@ -38,6 +43,8 @@ export class MusicianController {
 
     //localhost:3000/musicians
     @Post()
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: './uploads/musician-album/musicians',
@@ -76,6 +83,8 @@ export class MusicianController {
 
     //localhost:3000/musicians/:id/new-album
     @Post(':id/new-album')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     createNewAlbum(
         @Param('id') id: number,
         @Body('createAlbumDto') createAlbumDto: CreateAlbumDto) {
@@ -84,6 +93,8 @@ export class MusicianController {
 
     //localhost:3000/musicians/:id/update-musician
     @Put(':id/update-musician')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: './uploads/musician-album/musicians',
@@ -115,6 +126,8 @@ export class MusicianController {
 
     //localhost:3000/musicians/:id/delete-musician
     @Delete(':id/delete-musician')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     deleteMusician(@Param('id') id: number) {
         return this.musicianService.deleteMusician(id);
     }

@@ -7,6 +7,7 @@ import { FavoriteModule } from '../favorite/favorite.module';
 import { PassportModule } from '@nestjs/passport';
 import { AuthConstants } from 'src/commons/constants/auth-constants';
 import { PlaylistModule } from '../playlist/playlist.module';
+import { TrackModule } from '../track/track.module';
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import { PlaylistModule } from '../playlist/playlist.module';
             defaultStrategy: AuthConstants.strategies
         }),
         FavoriteModule,
+        TrackModule,
         PlaylistModule,
     ],
     controllers: [SongController],

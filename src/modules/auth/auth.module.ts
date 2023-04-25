@@ -11,6 +11,7 @@ import { AuthController } from './auth.controller';
 import { ForgottenPassword } from './entities/forgotten-password.entity';
 import { ProfileModule } from '../profile/profile.module';
 import { FavoriteModule } from '../favorite/favorite.module';
+import { PlaylistModule } from '../playlist/playlist.module';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { FavoriteModule } from '../favorite/favorite.module';
         }),
         ProfileModule,
         FavoriteModule,
+        PlaylistModule,
     ],
     providers: [AuthService, JwtStrategy],
     controllers: [AuthController],

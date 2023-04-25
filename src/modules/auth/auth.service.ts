@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { BadRequestException, ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
 import { CreateProfileDto } from "./dto/create-profile.dto";
 import { User } from "./entities/user.entity";
@@ -20,6 +20,7 @@ import { ForgottenPassword } from "./entities/forgotten-password.entity";
 import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { ProfileService } from "../profile/profile.service";
 import { FavoriteService } from "../favorite/favorite.service";
+import { PlaylistService } from "../playlist/playlist.service";
 
 @Injectable()
 export class AuthService {
@@ -31,6 +32,7 @@ export class AuthService {
         private jwtService: JwtService,
         private profileService: ProfileService,
         private favoriteService: FavoriteService,
+        private playlistService: PlaylistService,
     ) { }
 
     async signUp(
@@ -86,7 +88,7 @@ export class AuthService {
         };
     }
 
-    async singIn(emailLoginDto: EmailLoginDto): Promise<{ accessToken: string, user: User }> {
+    async singInUser(emailLoginDto: EmailLoginDto): Promise<{ accessToken: string, user: User }> {
         if (!(await this.isValidEmail(emailLoginDto.email))) {
             throw new BadRequestException('Invalid Email Signature');
         }
@@ -266,5 +268,75 @@ export class AuthService {
         user.password = await this.userRepository.hashPassword(newPassword, user.salt);
         await user.save();
         return true;
+    }
+
+    async signInAdmin(emailLoginDto: EmailLoginDto): Promise<{ accessToken: string, user: User }> {
+        if (!(await this.isValidEmail(emailLoginDto.email))) {
+            throw new BadRequestException('Invalid Email Signature');
+        }
+        const { email, user } = await this.userRepository.validateAdminPassword(emailLoginDto);
+        const payload: JwtPayload = { email };
+        const accessToken = this.jwtService.sign(payload);
+        return { accessToken, user };
+    }
+
+    async getSystemUsers(): Promise<User[]> {
+        return await this.userRepository.find();
+    }
+
+    async getUserById(id: number) {
+        const user = await this.userRepository.findOne({
+            where: {
+                id,
+            },
+        });
+        if (!user) {
+            throw new NotFoundException(`User with Id ${id} Does not found`);
+        }
+        return user;
+    }
+
+    async editUserRoles(id: number, roles: Role[]): Promise<User> {
+        const user = await this.getUserById(id);
+        if (roles) {
+            user.roles = roles;
+        }
+        return await user.save();
+    }
+
+    async deleteUserAccount(user: User) {
+        const profile = await this.profileService.getProfileData(user);
+        const favoriteId = profile.favoriteId;
+        // const subscriber = await this.notificationService.getSubscriberById(user.subscriberId);
+
+        // procedure-1: delete-user-playlists/ messages/ and related rooms
+        for (let i = 0; i < user.playlists.length; i++) {
+            await this.playlistService.deletePlaylist(user.playlists[i].id);
+        }
+
+        // await this.chatService.deleteUserMessages(user);
+        // await this.chatService.deleteUserJoinedRooms(user);
+
+
+        // procedure-2: delete-user
+        await this.userRepository.delete(user.id);
+
+        // procedure-3: delete-user-profile
+        await this.profileService.deleteProfile(profile.id);
+
+        // procedure-4: delete user subscriber
+        // await this.notificationService.deleteSubscriber(subscriber.id);
+        // procedure-5: delete-user-favorite-list
+
+        await this.favoriteService.deleteFavoriteList(favoriteId);
+
+        return true;
+    }
+
+    async isValidUsername(username: string): Promise<boolean> {
+        const query = this.userRepository.createQueryBuilder('user').select('username');
+        query.where('user.username LIKE :username', { username });
+        const count = await query.getCount();
+        return count >= 1;
     }
 }

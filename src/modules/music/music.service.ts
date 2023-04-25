@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import { FavoriteService } from "../favorite/favorite.service";
 import { Track } from "../track/track.entity";
 import { PlaylistService } from "../playlist/playlist.service";
+import { TrackService } from "../track/track.service";
 
 @Injectable()
 export class MusicService {
@@ -16,6 +17,7 @@ export class MusicService {
         @InjectRepository(MusicRepository) private musicRepository: MusicRepository,
         private favoriteService: FavoriteService,
         private playlistService: PlaylistService,
+        private trackService: TrackService,
     ) {
     }
 
@@ -77,16 +79,17 @@ export class MusicService {
     }
 
     async deleteMusic(id: number): Promise<DeleteResult> {
-        const musicic = await this.getMusicById(id);
-        console.log('----------music.source:', musicic.source);
-        if (musicic.source) {
-            fs.unlink(musicic.source, (err) => {
+        const music = await this.getMusicById(id);
+        for (let i = 0; i < music.tracks.length; i++) {
+            await this.trackService.deleteTrack(music.tracks[i].id);
+        }
+        if (music.source) {
+            fs.unlink(music.source, (err) => {
                 if (err) {
                     console.log('--------------------------------', err);
                 }
             });
         }
-
         const result = await this.musicRepository.delete(id);
         if (result.affected === 0) {
             throw new NotFoundException(`Music with id ${id} does not found`);

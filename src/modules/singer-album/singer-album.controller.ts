@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors } from "@nestjs/common/decorators";
+import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common/decorators";
 import { CreateAlbumDto } from "src/shared/dto/create-album.dto";
 import { SingerAlbumService } from "./singer-album.service";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -7,6 +7,10 @@ import { SongType } from "src/commons/enums/song-type.enum";
 import { SongLanguage } from "src/commons/enums/song-language.enum";
 import { ParseIntPipe } from "@nestjs/common";
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from "@nestjs/passport";
+import { AdminAuthGuard } from "src/commons/guards/admin-auth.guard";
+import { Roles } from "src/commons/decorators/roles.decorator";
+import { Role } from "src/commons/enums/role.enum";
 @Controller('singer-albums')
 @ApiTags("Singer-Album")
 export class SingerAlbummController {
@@ -29,6 +33,8 @@ export class SingerAlbummController {
 
     //localhost:3000/singer-albums/:id/new-song
     @Post(':id/new-song')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: './uploads/singer-album/songs',
@@ -61,6 +67,8 @@ export class SingerAlbummController {
 
     //localhost:3000/singer-albums/:id/update-album
     @Put(':id/update-album')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     updateAlbum(
         @Param('id') id: number,
         @Body('createAlbumDto') createAlbumDto: CreateAlbumDto
@@ -70,6 +78,8 @@ export class SingerAlbummController {
 
     //localhost:3000/singer-albums/:id/delete-album
     @Delete(':id/delete-album')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     deleteAlbum(
         @Param('id') id: number
     ) {

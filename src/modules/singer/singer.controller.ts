@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UploadedFile, UseInterceptors, UseGuards } from "@nestjs/common";
 import { ArtistType } from "src/commons/enums/artist-type.enum";
 import { Gender } from "src/commons/enums/gender.enum";
 import { CreateAlbumDto } from "src/shared/dto/create-album.dto";
@@ -6,6 +6,10 @@ import { SingersService } from "./singers.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { ApiTags } from '@nestjs/swagger';
+import { Roles } from "src/commons/decorators/roles.decorator";
+import { Role } from "src/commons/enums/role.enum";
+import { AuthGuard } from "@nestjs/passport";
+import { AdminAuthGuard } from "src/commons/guards/admin-auth.guard";
 
 @Controller('singers')
 @ApiTags("Singers")
@@ -39,6 +43,8 @@ export class SingerController {
 
     //localhost:3000/singers
     @Post()
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: './uploads/singer-album/singers',
@@ -77,6 +83,8 @@ export class SingerController {
 
     //localhost:3000/singers/:id/new-album
     @Post(':id/new-album')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     createNewAlbum(
         @Param('id') id: number,
         @Body('createAlbumDto') createAlbumDto: CreateAlbumDto) {
@@ -85,6 +93,8 @@ export class SingerController {
 
     //localhost:3000/singers/:id/update-singer
     @Put(':id/update-singer')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: './uploads/singer-album/singers',
@@ -116,6 +126,8 @@ export class SingerController {
 
     //localhost:3000/singers/:id/delete-singer
     @Delete(':id/delete-singer')
+    @UseGuards(AuthGuard(), AdminAuthGuard)
+    @Roles([Role.ADMIN])
     deleteSinger(@Param('id') id: number) {
         return this.singersService.deleteSinger(id);
     }
