@@ -70,7 +70,7 @@ export class AuthController {
 
     @Post('login/admin')
     signInAdmin(@Body() emailLoginDto: EmailLoginDto) {
-        return this.authService.singInUser(emailLoginDto);
+        return this.authService.signInAdmin(emailLoginDto);
     }
 
     @Get('system-users')

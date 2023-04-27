@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepository } from './repositories/user.repository';
 import { PassportModule } from '@nestjs/passport';
@@ -12,6 +12,7 @@ import { ForgottenPassword } from './entities/forgotten-password.entity';
 import { ProfileModule } from '../profile/profile.module';
 import { FavoriteModule } from '../favorite/favorite.module';
 import { PlaylistModule } from '../playlist/playlist.module';
+import { ChatModule } from 'src/shared/chat/chat.module';
 
 @Module({
     imports: [
@@ -28,9 +29,10 @@ import { PlaylistModule } from '../playlist/playlist.module';
         ProfileModule,
         FavoriteModule,
         PlaylistModule,
+        forwardRef(() => ChatModule),
     ],
     providers: [AuthService, JwtStrategy],
     controllers: [AuthController],
-    exports: [JwtStrategy, JwtModule, PassportModule],
+    exports: [JwtStrategy, JwtModule, PassportModule, AuthService],
 })
 export class AuthModule { }

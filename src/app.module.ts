@@ -17,6 +17,7 @@ import { SongModule } from './modules/song/song.module';
 import { TrackModule } from './modules/track/track.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { NodemailerModule, NodemailerDrivers, NodemailerOptions } from '@crowdlinker/nestjs-mailer';
+import { ChatModule } from './shared/chat/chat.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -53,6 +54,7 @@ dotenv.config();
     SingerAlbumModule,
     SongModule,
     TrackModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

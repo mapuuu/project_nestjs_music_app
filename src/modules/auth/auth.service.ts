@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, HttpException, HttpStatus, Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
 import { CreateProfileDto } from "./dto/create-profile.dto";
 import { User } from "./entities/user.entity";
@@ -21,6 +21,7 @@ import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { ProfileService } from "../profile/profile.service";
 import { FavoriteService } from "../favorite/favorite.service";
 import { PlaylistService } from "../playlist/playlist.service";
+import { ChatService } from "src/shared/chat/chat.service";
 
 @Injectable()
 export class AuthService {
@@ -33,6 +34,7 @@ export class AuthService {
         private profileService: ProfileService,
         private favoriteService: FavoriteService,
         private playlistService: PlaylistService,
+        @Inject(forwardRef(() => ChatService)) private chatService: ChatService,
     ) { }
 
     async signUp(
@@ -314,8 +316,8 @@ export class AuthService {
             await this.playlistService.deletePlaylist(user.playlists[i].id);
         }
 
-        // await this.chatService.deleteUserMessages(user);
-        // await this.chatService.deleteUserJoinedRooms(user);
+        await this.chatService.deleteUserMessages(user);
+        await this.chatService.deleteUserJoinedRooms(user);
 
 
         // procedure-2: delete-user
@@ -338,5 +340,20 @@ export class AuthService {
         query.where('user.username LIKE :username', { username });
         const count = await query.getCount();
         return count >= 1;
+    }
+
+    // creating this method is just response to chat gateway
+    async findUser(id: number, nickname?: string, clientId?: string): Promise<User> {
+        let user = null;
+        if (id) {
+            user = await this.getUserById(id);
+        } else if (nickname) {
+            user = await this.userRepository.findOne({ username: nickname });
+        } else if (clientId) {
+            user = await this.userRepository.findOne({ clientId });
+        } else {
+            throw new NotFoundException(`User with Id ${id} Does not found`);
+        }
+        return user;
     }
 }

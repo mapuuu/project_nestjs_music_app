@@ -4,6 +4,8 @@ import { Entity, Column, PrimaryGeneratedColumn, Unique, OneToOne, JoinColumn, O
 import * as bcrypt from 'bcryptjs';
 import { Profile } from 'src/modules/profile/profile.entity';
 import { Playlist } from 'src/modules/playlist/playlist.entity';
+import { Message } from 'src/shared/chat/entities/message.entity';
+import { UserJoinedRoom } from 'src/shared/chat/entities/user-joined-room.entity';
 
 @Entity('users')
 @Unique(['username', 'email'])
@@ -51,8 +53,24 @@ export class User extends BaseEntity {
     })
     playlists: Playlist[];
 
+    @OneToMany(type => Message, message => message.user, {
+        eager: true
+    })
+    messages: Message[];
+
+    @OneToMany(type => UserJoinedRoom,
+        userJoinedRoom => userJoinedRoom.user, {
+        eager: true
+    })
+    userJoinedRooms: UserJoinedRoom[];
 
     // Foreign Key
     @Column()
     profileId: number;
+
+    // this column related to socket io
+    @Column({
+        nullable: true,
+    })
+    clientId: string;
 }

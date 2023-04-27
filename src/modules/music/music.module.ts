@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MusicRepository } from './music.repository';
 import { MusicController } from './music.controller';
@@ -17,7 +17,7 @@ import { TrackModule } from '../track/track.module';
         }),
         FavoriteModule,
         TrackModule,
-        PlaylistModule,
+        forwardRef(() => PlaylistModule),
     ],
     controllers: [MusicController],
     providers: [MusicService]
